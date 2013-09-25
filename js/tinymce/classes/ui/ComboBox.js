@@ -212,7 +212,7 @@ define("tinymce/ui/ComboBox", [
 			var self = this, id = self._id, settings = self.settings, prefix = self.classPrefix;
 			var value = settings.value || settings.placeholder || '';
 			var icon, text, openBtnHtml = '';
-			var disabledHtml = settings.disabled ? ' disabled="disabled" ';
+			var disabledHtml = settings.disabled ? ' disabled="disabled" ' : ' ';
 
 			icon = settings.icon ? prefix + 'ico ' + prefix + 'i-' + settings.icon : '';
 			text = self._text;
