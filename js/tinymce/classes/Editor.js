@@ -419,6 +419,7 @@ define("tinymce/Editor", [
 				});
 
 				each(settings.plugins.split(/[ ,]/), function(plugin) {
+					var revisionParam = settings.revision ? '?v=' + settings.revision : '';
 					plugin = trim(plugin);
 
 					if (plugin && !PluginManager.urls[plugin]) {
@@ -431,7 +432,7 @@ define("tinymce/Editor", [
 								var defaultSettings = {
 									prefix:'plugins/',
 									resource: dep,
-									suffix:'/plugin' + suffix + '.js'
+									suffix:'/plugin' + suffix + '.js' + revisionParam
 								};
 
 								dep = PluginManager.createUrl(defaultSettings, dep);
@@ -441,7 +442,7 @@ define("tinymce/Editor", [
 							PluginManager.load(plugin, {
 								prefix: 'plugins/',
 								resource: plugin,
-								suffix: '/plugin' + suffix + '.js'
+								suffix: '/plugin' + suffix + '.js' + revisionParam
 							});
 						}
 					}
