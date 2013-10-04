@@ -129,13 +129,6 @@ tinymce.PluginManager.add("gd_image", function (editor) {
 				style: data.style
 			};
 
-			if ( data.width === undefined ) {
-				delete data.width;
-			}
-			if (data.height === undefined ) {
-				delete data.height;
-			}
-
 			if (!imgElm) {
 				data.id = '__mcenew';
 				editor.insertContent(dom.createHTML('img', data));
@@ -229,7 +222,19 @@ tinymce.PluginManager.add("gd_image", function (editor) {
 				onclick: function(e) {
 					e.cancelBubble = true;
 
-					uploadFiles( onSubmitForm );
+					var $popup = $('.mce-floatpanel'),
+						$okBtn = $popup.find('button:contains("Ok")'),
+						$valField = $popup.find(':text');
+
+					$okBtn.attr('disabled', 'disabled');
+
+					//return false;
+					window.setTimeout(function() {
+						if ($valField.val().trim()) {
+							onSubmitForm();
+						}
+						win.close();
+					}, 1000);
 				}
 			},
 			{
@@ -239,52 +244,6 @@ tinymce.PluginManager.add("gd_image", function (editor) {
 				}
 			}
 		];
-
-		function uploadFiles(callback) {
-			var $form = editor.settings.native_file_upload ? $('.mce-floatpanel').find('form') : $('#' + editor.settings.s3_upload_form),
-				$input = $form.find(':file'),
-				$iframe = $('#' + editor.settings.s3_upload_iframe),
-				$popup = $('.mce-floatpanel');
-
-			$iframe.off('load.getUrl')
-				.on('load.getUrl', function() {
-					Logger.info('Frame loaded');
-					var i = $iframe[0],
-						d;
-					if (i.contentDocument) d = i.contentDocument;
-					else if (i.contentWindow) d = i.contentWindow.document;
-					else d = window.frames[this.id].document;
-
-					if (d) {
-						// Remove bizarre <pre> tag wrappers around our json data
-						var rawString = d.body.innerHTML;
-						if (!rawString) {
-							return;
-						}
-						var jsonString = rawString.match(/\{(.|\n)*\}/)[0];
-
-						jsonString = jsonString.replace(/^\[/, '');
-						jsonString = jsonString.replace(/\]$/, '');
-
-						var json = $.parseJSON(jsonString);
-
-						var wm = tinymce.activeEditor.windowManager,
-							params = wm.getParams();
-
-						// set the value of the image source field to the s3 image
-						$popup.find(':text').val(json.link);
-					}
-					// replace the file input when done to clear it
-					var $fileInput = $input.clone();
-					$input.replaceWith( $fileInput );
-
-					callback();
-					win.close();
-					return false;
-				});
-
-			$form.submit();
-		}
 
 		function updateStyle() {
 			function addPixelSuffix(value) {
@@ -304,46 +263,6 @@ tinymce.PluginManager.add("gd_image", function (editor) {
 			css['border-width'] = addPixelSuffix(data.border);
 
 			win.find('#style').value(dom.serializeStyle(dom.parseStyle(dom.serializeStyle(css))));
-		}
-
-		function initIEUploadFlow() {
-			var $popup = $('.mce-floatpanel'),
-			$form = $('#' + editor.settings.s3_upload_form).clone().removeAttr('id');
-
-			$popup.wrapInner($form);
-
-			var $fileInp = $popup.find(':file'),
-				$fileClone = $fileInp.clone().removeClass('hidden').css({
-					width: '210px'
-				}),
-				$okBtn = $popup.find('.mce-btn:contains("Ok")');
-
-			//$okBtn.hide();
-			$popup.find('.mce-textbox, .mce-open').hide()
-			$popup.find('.mce-textbox').after($fileClone);
-			$fileInp.remove();
-
-			$popup.find(':file').parent().css({
-				left: '60px'
-			});
-
-			var $iframe = $('#s3frame');
-
-			if ( !$iframe.length ) {
-				$iframe = $('<iframe name="' + editor.settings.s3_upload_iframe + '" id="' + editor.settings.s3_upload_iframe + '"></iframe>').addClass('hidden').appendTo('body');
-			}
-		}
-
-		if ( editor.settings.native_file_upload) {
-			window.setTimeout( function() {
-				var $popup = $('.mce-floatpanel');
-				if ($popup.length) {
-					initIEUploadFlow();
-				}
-				else { // try again in case the timing is off for some reason
-					window.setTimeout( initIEUploadFlow, 500);
-				}
-			}, 200);
 		}
 
 		if (editor.settings.image_advtab) {
