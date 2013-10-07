@@ -162,7 +162,7 @@ define("tinymce/ui/TextBox", [
 				return (
 					'<textarea id="' + id + '" class="' + self.classes() + '" ' +
 					(settings.rows ? ' rows="' + settings.rows + '"' : '') +
-					' hidefocus="true"' + extraAttrs + '>' + value +
+					' hidefocus="true"' + extraAttrs + 'placeholder='+ settings.placeholder +'>' + value +
 					'</textarea>'
 				);
 			}
